@@ -1,13 +1,17 @@
 package therabbit.assignmentproject;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Nutherabbit on 11/7/2560.
  */
 
 public class RealmImageObject extends RealmObject{
+
+    @PrimaryKey
     int imd_id;
+
     String img_path;
     String type;
     byte bitByte[];

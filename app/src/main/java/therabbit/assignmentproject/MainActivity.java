@@ -25,20 +25,20 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    public static final int CONNECTION_TIMEOUT = 10000;
-    public static final int READ_TIMEOUT = 15000;
+
     public RecyclerView recyclerView;
 
     public RecyclerView.LayoutManager layoutManager;
     public Button addImg;
     public int REQUEST_CAMERA = 0, SELECT_FILE = 1;
     public String choose;
-    public ArrayList<Bitmap> img_data = new ArrayList<>();
+
     public MyRecyclerViewAdapter viewAdapter;
     private Realm realm = null;
     public ArrayList<String> urlList = new ArrayList<>();
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-        viewAdapter = new MyRecyclerViewAdapter(this, img_data,datas);
+        viewAdapter = new MyRecyclerViewAdapter(this,datas);
         recyclerView.setAdapter(viewAdapter);
 
         RealmResults<RealmImageObject> xx = realm.where(RealmImageObject.class).findAll();
@@ -187,10 +187,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (IOException e) {
             e.printStackTrace();
         }
-        img_data.add(thumbnail);
+        //img_data.add(thumbnail);
         ImgData imgData = new ImgData();
         imgData.setImg_path(destination.getPath());
-        imgData.setImd_id(datas.size()+1);
+        Random random = new Random();
+        imgData.setImd_id(random.nextInt());
         imgData.setType("local");
         imgData.setBitmap(thumbnail);
         datas.add(imgData);
@@ -212,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }
-        img_data.add(bm);
+        //img_data.add(bm);
 
 
         Bitmap bmp = bm;
@@ -226,7 +227,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Uri selectedImage = data.getData();
         imgData.setImg_path(getRealPathFromURI(selectedImage));
-        imgData.setImd_id(datas.size()+1);
+        Random random = new Random();
+        imgData.setImd_id(random.nextInt());
         imgData.setType("local");
         imgData.setBitmap(bm);
         datas.add(imgData);
@@ -283,13 +285,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return cursor.getString(column_index);
     }
 
-    public ArrayList<Bitmap> getImg_data() {
-        return img_data;
-    }
 
-    public void setImg_data(ArrayList<Bitmap> img_data) {
-        this.img_data = img_data;
-    }
 
     public void upDateList() {
         viewAdapter.notifyDataSetChanged();
@@ -341,7 +337,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void showObject(){
         RealmResults<RealmImageObject> objects = realm.where(RealmImageObject.class).findAll();
         Log.d("re ",objects.size()+"");
-        //datas = new ArrayList<>();
         for (int i = 0; i < objects.size(); i++) {
             Log.d("realm",objects.get(i).getImg_path());
             ImgData imgData = new ImgData();

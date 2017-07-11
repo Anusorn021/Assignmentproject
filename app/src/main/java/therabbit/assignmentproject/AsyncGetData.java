@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by Nutherabbit on 11/7/2560.
@@ -100,7 +101,8 @@ public class AsyncGetData extends AsyncTask<String, String, String> {
                 if ((i % 2) == 0){
                     urlList.add(jArray.getJSONObject(i).get("thumbnailUrl").toString());
                     ImgData imgData = new ImgData();
-                    imgData.setImd_id(activity.getDatas().size()+1);
+                    Random random = new Random();
+                    imgData.setImd_id(random.nextInt());
                     imgData.setImg_path(jArray.getJSONObject(i).get("thumbnailUrl").toString());
                     imgData.setType("server");
                     activity.insertImg(imgData);
@@ -110,7 +112,8 @@ public class AsyncGetData extends AsyncTask<String, String, String> {
                 else {
                     urlList.add(jArray.getJSONObject(i).get("url").toString());
                     ImgData imgData = new ImgData();
-                    imgData.setImd_id(activity.getDatas().size()+1);
+                    Random random = new Random();
+                    imgData.setImd_id(random.nextInt());
                     imgData.setImg_path(jArray.getJSONObject(i).get("url").toString());
                     imgData.setType("server");
 

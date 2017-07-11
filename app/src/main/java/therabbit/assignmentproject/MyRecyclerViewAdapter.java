@@ -21,12 +21,12 @@ import java.util.ArrayList;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder>{
 
-    ArrayList<Bitmap> bitmaps = new ArrayList<>();
+
     Context context;
     MainActivity activity;
     ArrayList<ImgData> data;
-    public MyRecyclerViewAdapter(MainActivity activity, ArrayList<Bitmap> img_data,ArrayList<ImgData> data) {
-        this.bitmaps = img_data;
+    public MyRecyclerViewAdapter(MainActivity activity, ArrayList<ImgData> data) {
+
         this.activity = activity;
         this.context = activity.getApplicationContext();
         this.data = data;
@@ -41,7 +41,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     @Override
     public void onBindViewHolder(MyRecyclerViewAdapter.ViewHolder holder, final int position) {
-        if (bitmaps != null){
+        if (data != null){
 
             if (data.get(position).getType().equals("local")){
                 Log.d("zzz",data.get(position).getImg_path());
@@ -52,31 +52,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                     public void onClick(View v) {
                         AlertDialog diaBox = AskOption(position);
                         diaBox.show();
-
-
                     }
                 });
             }
             else if (data.get(position).getType().equals("server")){
-                Log.d("zzz",data.get(position).getImg_path());
-                /*ViewHolder viewHolder = (ViewHolder) holder;
-                new DownloadImageTask(viewHolder,activity).execute(data.get(position).getImg_path());*/
                 ViewHolder viewHolder = (ViewHolder) holder;
                 viewHolder.imageView.setImageBitmap(data.get(position).getBitmap());
 
-                //viewHolder.imageView.setImageBitmap(bitmaps.get(position));
             }
-            /*ViewHolder viewHolder = (ViewHolder) holder;
-            viewHolder.imageView.setImageBitmap(bitmaps.get(position));
-            viewHolder.del.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog diaBox = AskOption(position);
-                    diaBox.show();
 
-
-                }
-            });*/
         }
     }
 
@@ -107,7 +91,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private AlertDialog AskOption(final int position)
     {
         AlertDialog alertDialog =new AlertDialog.Builder(activity)
-                //set message, title, and icon
                 .setTitle("Delete")
                 .setMessage("Do you want to Delete")
 
@@ -115,7 +98,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        //your deleting code
                         removeItem(position);
 
                     }
