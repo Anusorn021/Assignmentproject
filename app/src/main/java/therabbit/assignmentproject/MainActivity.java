@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int CONNECTION_TIMEOUT = 10000;
@@ -38,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public String choose;
     public ArrayList<Bitmap> img_data = new ArrayList<>();
     public MyRecyclerViewAdapter viewAdapter;
-    private Realm realm;
+    private Realm realm = null;
     public ArrayList<String> urlList = new ArrayList<>();
     public ArrayList<ImgData> datas = new ArrayList<>();
 
@@ -46,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new AsyncGetData(this).execute();
+
         addImg = (Button) findViewById(R.id.addImg);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -63,6 +65,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         viewAdapter = new MyRecyclerViewAdapter(this, img_data,datas);
         recyclerView.setAdapter(viewAdapter);
+
+        RealmResults<RealmImageObject> xx = realm.where(RealmImageObject.class).findAll();
+
+        if (xx == null) {
+            System.out.println("SSSSSSSSSSSS");
+            new AsyncGetData(this).execute();
+        } else {
+            System.out.println("FFFFFFFFF");
+            showObject();
+        }
+
 
 
     }
@@ -181,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgData.setType("local");
         imgData.setBitmap(thumbnail);
         datas.add(imgData);
-
+        insertImg(imgData);
         upDateList();
 
 
@@ -217,22 +230,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgData.setType("local");
         imgData.setBitmap(bm);
         datas.add(imgData);
+        insertImg(imgData);
         upDateList();
         //ivImage.setImageBitmap(bm);
     }
 
-    /*private void insertImg(byte bb[]) {
-        realm.beginTransaction();
+    public void insertImg(final ImgData data) {
+        realm.executeTransactionAsync(
+                new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                            RealmImageObject realmImageObject = realm.createObject(RealmImageObject.class);
+                            realmImageObject.setImd_id(data.getImd_id());
+                            realmImageObject.setType(data.getType());
+                            realmImageObject.setImg_path(data.getImg_path());
+                            Bitmap bitmap = data.getBitmap();
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                            byte[] byteArray = stream.toByteArray();
+                            realmImageObject.setbitByte(byteArray);
 
-        ImgData imgData = realm.createObject(ImgData.class);
-        Random r = new Random();
-        imgData.setImd_id(r.nextInt());
-        imgData.setBb(bb);
-        realm.commitTransaction();
+                    }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        //Toast.makeText(getApplicationContext(), "save complete.", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                }, new Realm.Transaction.OnError() {
+                    @Override
+                    public void onError(Throwable error) {
+                        error.printStackTrace();
+                        //Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 
 
-    }*/
+    }
 
     public String getRealPathFromURI(Uri contentUri) {
         String [] proj      = {MediaStore.Images.Media.DATA};
@@ -258,25 +294,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void upDateList() {
         viewAdapter.notifyDataSetChanged();
         for (int i = 0; i < datas.size(); i++) {
-            Log.d("ddd",datas.get(i).getImd_id()+" "+datas.get(i).getImg_path() + datas.get(i).getType());
+            Log.d("ddd",datas.get(i).getImd_id()+" "+datas.get(i).getImg_path());
 
         }
+
     }
 
     public void deleteImgLocal(int position) {
-        img_data.remove(position);
+        //img_data.remove(position);
         Log.d("1 ",position+"");
-        Log.d("2 ",img_data.size()+"");
+        //Log.d("2 ",img_data.size()+"");
         Log.d("3 ",datas.get(position).getImg_path()+"");
         File file = new File(datas.get(position).getImg_path()+"");
         file.delete();
-
+        removeRealmObject(position);
         for (int i = 0; i < datas.size(); i++) {
             Log.d("delete",datas.get(i).getImd_id()+" "+datas.get(i).getImg_path());
 
         }
 
 
+
+    }
+
+    public void removeRealmObject(final int position){
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<RealmImageObject> rows = realm.where(RealmImageObject.class).findAll();
+                for (int i = 0; i < rows.size(); i++) {
+                    if (position == i){
+                        rows.deleteFromRealm(position);
+                    }
+                }
+            }
+        });
     }
 
     public ArrayList<ImgData> getDatas() {
@@ -285,5 +337,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void setDatas(ArrayList<ImgData> datas) {
         this.datas = datas;
+    }
+    public void showObject(){
+        RealmResults<RealmImageObject> objects = realm.where(RealmImageObject.class).findAll();
+        Log.d("re ",objects.size()+"");
+        //datas = new ArrayList<>();
+        for (int i = 0; i < objects.size(); i++) {
+            Log.d("realm",objects.get(i).getImg_path());
+            ImgData imgData = new ImgData();
+            imgData.setImg_path(objects.get(i).getImg_path());
+            imgData.setImd_id(objects.get(i).getImd_id());
+            imgData.setType(objects.get(i).getType());
+            Bitmap bitmap = BitmapFactory.decodeByteArray(objects.get(i).getbitByte(), 0, objects.get(i).getbitByte().length);
+            imgData.setBitmap(bitmap);
+            datas.add(imgData);
+
+        }
+        upDateList();
     }
 }
