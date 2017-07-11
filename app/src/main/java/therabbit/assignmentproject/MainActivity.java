@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-        viewAdapter = new MyRecyclerViewAdapter(this, img_data);
+        viewAdapter = new MyRecyclerViewAdapter(this, img_data,datas);
         recyclerView.setAdapter(viewAdapter);
 
 
@@ -179,9 +179,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgData.setImg_path(destination.getPath());
         imgData.setImd_id(datas.size()+1);
         imgData.setType("local");
+        imgData.setBitmap(thumbnail);
         datas.add(imgData);
 
-        System.out.println(destination);
         upDateList();
 
 
@@ -215,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgData.setImg_path(getRealPathFromURI(selectedImage));
         imgData.setImd_id(datas.size()+1);
         imgData.setType("local");
+        imgData.setBitmap(bm);
         datas.add(imgData);
         upDateList();
         //ivImage.setImageBitmap(bm);
@@ -257,17 +258,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void upDateList() {
         viewAdapter.notifyDataSetChanged();
         for (int i = 0; i < datas.size(); i++) {
-            Log.d("ddd",datas.get(i).getImd_id()+" "+datas.get(i).getImg_path());
+            Log.d("ddd",datas.get(i).getImd_id()+" "+datas.get(i).getImg_path() + datas.get(i).getType());
 
         }
     }
 
     public void deleteImgLocal(int position) {
-        datas.remove(position);
         img_data.remove(position);
         Log.d("1 ",position+"");
         Log.d("2 ",img_data.size()+"");
-        Log.d("3 ",datas.size()+"");
+        Log.d("3 ",datas.get(position).getImg_path()+"");
+        File file = new File(datas.get(position).getImg_path()+"");
+        file.delete();
+
+        for (int i = 0; i < datas.size(); i++) {
+            Log.d("delete",datas.get(i).getImd_id()+" "+datas.get(i).getImg_path());
+
+        }
+
 
     }
 

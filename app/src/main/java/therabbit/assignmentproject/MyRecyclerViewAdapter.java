@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,25 +24,49 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     ArrayList<Bitmap> bitmaps = new ArrayList<>();
     Context context;
     MainActivity activity;
-    public MyRecyclerViewAdapter(MainActivity activity, ArrayList<Bitmap> img_data) {
+    ArrayList<ImgData> data;
+    public MyRecyclerViewAdapter(MainActivity activity, ArrayList<Bitmap> img_data,ArrayList<ImgData> data) {
         this.bitmaps = img_data;
         this.activity = activity;
         this.context = activity.getApplicationContext();
-
+        this.data = data;
     }
 
     @Override
     public MyRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.low_layout, null);
         ViewHolder viewHolder = new ViewHolder(view);
-        System.out.println("xxxxx "+bitmaps);
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(MyRecyclerViewAdapter.ViewHolder holder, final int position) {
         if (bitmaps != null){
-            ViewHolder viewHolder = (ViewHolder) holder;
+
+            if (data.get(position).getType().equals("local")){
+                Log.d("zzz",data.get(position).getImg_path());
+                ViewHolder viewHolder = (ViewHolder) holder;
+                viewHolder.imageView.setImageBitmap(data.get(position).getBitmap());
+                viewHolder.del.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog diaBox = AskOption(position);
+                        diaBox.show();
+
+
+                    }
+                });
+            }
+            else if (data.get(position).getType().equals("server")){
+                Log.d("zzz",data.get(position).getImg_path());
+                /*ViewHolder viewHolder = (ViewHolder) holder;
+                new DownloadImageTask(viewHolder,activity).execute(data.get(position).getImg_path());*/
+                ViewHolder viewHolder = (ViewHolder) holder;
+                viewHolder.imageView.setImageBitmap(data.get(position).getBitmap());
+
+                //viewHolder.imageView.setImageBitmap(bitmaps.get(position));
+            }
+            /*ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.imageView.setImageBitmap(bitmaps.get(position));
             viewHolder.del.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -51,13 +76,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
 
                 }
-            });
+            });*/
         }
     }
 
     @Override
     public int getItemCount() {
-        return bitmaps.size();
+        return data.size();
     }
 
 
@@ -71,10 +96,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         }
     }
     private void removeItem(int position) {
+
         activity.deleteImgLocal(position);
-        bitmaps.remove(position);
+
+        data.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(position, bitmaps.size());
+        notifyItemRangeChanged(position, data.size());
 
     }
     private AlertDialog AskOption(final int position)

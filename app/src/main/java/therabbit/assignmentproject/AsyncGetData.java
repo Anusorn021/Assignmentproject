@@ -103,6 +103,8 @@ public class AsyncGetData extends AsyncTask<String, String, String> {
                     imgData.setImd_id(activity.getDatas().size()+1);
                     imgData.setImg_path(jArray.getJSONObject(i).get("thumbnailUrl").toString());
                     imgData.setType("server");
+
+                    new DownloadImageTask(activity,imgData).execute(jArray.getJSONObject(i).get("thumbnailUrl").toString());
                     activity.getDatas().add(imgData);
                 }
                 else {
@@ -111,13 +113,15 @@ public class AsyncGetData extends AsyncTask<String, String, String> {
                     imgData.setImd_id(activity.getDatas().size()+1);
                     imgData.setImg_path(jArray.getJSONObject(i).get("url").toString());
                     imgData.setType("server");
+
+                    new DownloadImageTask(activity,imgData).execute(jArray.getJSONObject(i).get("url").toString());
                     activity.getDatas().add(imgData);
                 }
             }
-            for (int i = 0; i < urlList.size(); i++) {
+            /*for (int i = 0; i < urlList.size(); i++) {
                 new DownloadImageTask(activity).execute(urlList.get(i));
 
-            }
+            }*/
 
 
         } catch (JSONException e) {

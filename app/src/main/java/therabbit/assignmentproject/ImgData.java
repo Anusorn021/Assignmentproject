@@ -1,5 +1,7 @@
 package therabbit.assignmentproject;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by Nutherabbit on 10/7/2560.
  */
@@ -9,7 +11,7 @@ public class ImgData  {
     int imd_id;
     String img_path;
     String type;
-
+    Bitmap bitmap ;
     byte bb[];
 
     public int getImd_id() {
@@ -42,5 +44,13 @@ public class ImgData  {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 }
