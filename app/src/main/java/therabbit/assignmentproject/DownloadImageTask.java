@@ -14,9 +14,10 @@ import java.util.ArrayList;
 
 public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
     ArrayList bmImage;
+    MainActivity activity;
 
-    public DownloadImageTask(ArrayList<Bitmap> bmImage) {
-        this.bmImage = bmImage;
+    public DownloadImageTask(MainActivity activity) {
+        this.activity = activity;
     }
 
     protected Bitmap doInBackground(String... urls) {
@@ -33,7 +34,8 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
     }
 
     protected void onPostExecute(Bitmap result) {
-        bmImage.add(result);
+        activity.getImg_data().add(result);
+        activity.upDateList();
 
 
     }

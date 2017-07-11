@@ -3,6 +3,7 @@ package therabbit.assignmentproject;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
  * Created by Nutherabbit on 10/7/2560.
  */
 
-public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> implements View.OnClickListener{
+public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder>{
 
     ArrayList<Bitmap> bitmaps = new ArrayList<>();
     Context context;
@@ -33,12 +34,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public MyRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.low_layout, null);
         ViewHolder viewHolder = new ViewHolder(view);
+        System.out.println("xxxxx "+bitmaps);
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(MyRecyclerViewAdapter.ViewHolder holder, final int position) {
-        if (bitmaps != null && bitmaps.size() != 0){
+        if (bitmaps != null){
             ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.imageView.setImageBitmap(bitmaps.get(position));
             viewHolder.del.setOnClickListener(new View.OnClickListener() {
@@ -58,12 +60,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return bitmaps.size();
     }
 
-    @Override
-    public void onClick(View v) {
-
-
-
-    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
@@ -75,7 +71,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         }
     }
     private void removeItem(int position) {
-
+        activity.deleteImgLocal(position);
         bitmaps.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, bitmaps.size());
@@ -112,4 +108,18 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return alertDialog;
 
     }
+    public Bitmap getBitmapFormPath(String photoPath){
+//        File sd = Environment.getExternalStorageDirectory();
+//        File image = new File(sd+filePath, imageName);
+//        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+//        Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath(),bmOptions);
+//        bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);
+        return bitmap;
+    }
+
+
 }

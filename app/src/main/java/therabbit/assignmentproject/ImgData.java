@@ -1,19 +1,14 @@
 package therabbit.assignmentproject;
 
-import io.realm.RealmObject;
-import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.Required;
-
 /**
  * Created by Nutherabbit on 10/7/2560.
  */
 
-public class ImgData extends RealmObject {
-    @PrimaryKey
-    int imd_id;
+public class ImgData  {
 
-    @Required
+    int imd_id;
     String img_path;
+    String type;
 
     byte bb[];
 
@@ -39,5 +34,13 @@ public class ImgData extends RealmObject {
 
     public void setBb(byte[] bb) {
         this.bb = bb;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

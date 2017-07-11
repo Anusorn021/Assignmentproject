@@ -5,7 +5,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -22,10 +24,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int CONNECTION_TIMEOUT = 10000;
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public MyRecyclerViewAdapter viewAdapter;
     private Realm realm;
     public ArrayList<String> urlList = new ArrayList<>();
+    public ArrayList<ImgData> datas = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +49,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new AsyncGetData(this).execute();
         addImg = (Button) findViewById(R.id.addImg);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
 
         addImg.setOnClickListener(this);
 
         realm = Realm.getDefaultInstance();
-        viewAdapter = new MyRecyclerViewAdapter(this, img_data);
-        viewAdapter.notifyDataSetChanged();
+
 
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
+
+
+
+        viewAdapter = new MyRecyclerViewAdapter(this, img_data);
         recyclerView.setAdapter(viewAdapter);
+
 
     }
 
@@ -170,7 +175,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
         img_data.add(thumbnail);
-        insertImg(bytes.toByteArray());
+        ImgData imgData = new ImgData();
+        imgData.setImg_path(destination.getPath());
+        imgData.setImd_id(datas.size()+1);
+        imgData.setType("local");
+        datas.add(imgData);
+
+        System.out.println(destination);
+        upDateList();
+
 
         //ivImage.setImageBitmap(thumbnail);
     }
@@ -188,15 +201,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         img_data.add(bm);
 
+
         Bitmap bmp = bm;
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] byteArray = stream.toByteArray();
-        insertImg(byteArray);
+
+        ImgData imgData = new ImgData();
+
+
+
+        Uri selectedImage = data.getData();
+        imgData.setImg_path(getRealPathFromURI(selectedImage));
+        imgData.setImd_id(datas.size()+1);
+        imgData.setType("local");
+        datas.add(imgData);
+        upDateList();
         //ivImage.setImageBitmap(bm);
     }
 
-    private void insertImg(byte bb[]) {
+    /*private void insertImg(byte bb[]) {
         realm.beginTransaction();
 
         ImgData imgData = realm.createObject(ImgData.class);
@@ -205,14 +229,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgData.setBb(bb);
         realm.commitTransaction();
 
-        RealmResults<ImgData> results = realm.where(ImgData.class).findAll();
-        Log.d("STUDENT", "SIZE = " + results.size());
+
+
+    }*/
+
+    public String getRealPathFromURI(Uri contentUri) {
+        String [] proj      = {MediaStore.Images.Media.DATA};
+        Cursor cursor       = managedQuery( contentUri, proj, null, null,null);
+
+        if (cursor == null) return null;
+
+        int column_index    = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+
+        cursor.moveToFirst();
+
+        return cursor.getString(column_index);
+    }
+
+    public ArrayList<Bitmap> getImg_data() {
+        return img_data;
+    }
+
+    public void setImg_data(ArrayList<Bitmap> img_data) {
+        this.img_data = img_data;
+    }
+
+    public void upDateList() {
+        viewAdapter.notifyDataSetChanged();
+        for (int i = 0; i < datas.size(); i++) {
+            Log.d("ddd",datas.get(i).getImd_id()+" "+datas.get(i).getImg_path());
+
+        }
+    }
+
+    public void deleteImgLocal(int position) {
+        datas.remove(position);
+        img_data.remove(position);
+        Log.d("1 ",position+"");
+        Log.d("2 ",img_data.size()+"");
+        Log.d("3 ",datas.size()+"");
 
     }
 
+    public ArrayList<ImgData> getDatas() {
+        return datas;
+    }
 
-
-
-
-
+    public void setDatas(ArrayList<ImgData> datas) {
+        this.datas = datas;
+    }
 }

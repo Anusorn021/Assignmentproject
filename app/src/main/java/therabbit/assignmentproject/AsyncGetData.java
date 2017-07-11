@@ -97,12 +97,26 @@ public class AsyncGetData extends AsyncTask<String, String, String> {
 
             for (int i = 0; i < jArray.length(); i++) {
 
-                if ((i % 2) == 0)urlList.add(jArray.getJSONObject(i).get("thumbnailUrl").toString());
-                else urlList.add(jArray.getJSONObject(i).get("url").toString());
+                if ((i % 2) == 0){
+                    urlList.add(jArray.getJSONObject(i).get("thumbnailUrl").toString());
+                    ImgData imgData = new ImgData();
+                    imgData.setImd_id(activity.getDatas().size()+1);
+                    imgData.setImg_path(jArray.getJSONObject(i).get("thumbnailUrl").toString());
+                    imgData.setType("server");
+                    activity.getDatas().add(imgData);
+                }
+                else {
+                    urlList.add(jArray.getJSONObject(i).get("url").toString());
+                    ImgData imgData = new ImgData();
+                    imgData.setImd_id(activity.getDatas().size()+1);
+                    imgData.setImg_path(jArray.getJSONObject(i).get("url").toString());
+                    imgData.setType("server");
+                    activity.getDatas().add(imgData);
+                }
             }
             for (int i = 0; i < urlList.size(); i++) {
-                new DownloadImageTask(activity.img_data).execute(urlList.get(i));
-                activity.viewAdapter.notifyDataSetChanged();
+                new DownloadImageTask(activity).execute(urlList.get(i));
+
             }
 
 
